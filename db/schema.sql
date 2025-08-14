@@ -1,6 +1,6 @@
 
 
-CREATE TABLE teams (
+CREATE TABLE IF NOT EXISTS teams (
     team_id INTEGER PRIMARY KEY AUTOINCREMENT,
     team_name TEXT NOT NULL,
     titles INTEGER NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE teams (
     year_founded INTEGER NOT NULL
 );
 
-CREATE TABLE players (
+CREATE TABLE IF NOT EXISTS players (
     player_id INTEGER PRIMARY KEY AUTOINCREMENT,
     team_id INTEGER NOT NULL,
     first_name TEXT NOT NULL,

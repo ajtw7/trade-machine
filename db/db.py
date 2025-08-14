@@ -27,9 +27,5 @@ def fetch_team_by_id(team_id):
     db_conn.close()
     return single_team
 
-if __name__ == "__main__":
-    # Test database connection and print all teams
-    all_teams = fetch_all_teams()
-    print("Query Result:", all_teams)
-    for t in all_teams:
-        print(dict(t))
+
+

@@ -59,7 +59,7 @@ INSERT INTO teams (team_name, titles, mascot, location, venue, general_mgr, head
 VALUES ('Miami Dolphins', 2, 'T.D.', 'Miami Gardens, FL', 'Hard Rock Stadium', 'Chris Grier', 'Mike McDaniel', 'East', 'AFC', 'Stephen Ross', 1966);
 
 INSERT INTO teams (team_name, titles, mascot, location, venue, general_mgr, head_coach, division, conference, ownership, year_founded)
-VALUES ('Minnesota Vikings', 0, 'Viktor', 'Minneapolis, MN', 'U.S. Bank Stadium', 'Kwesi Adofo-Mensah', 'Kevin O\'Connell', 'North', 'NFC', 'Zygi Wilf', 1961);
+VALUES ('Minnesota Vikings', 0, 'Viktor', 'Minneapolis, MN', 'U.S. Bank Stadium', 'Kwesi Adofo-Mensah', 'Kevin O''Connell', 'North', 'NFC', 'Zygi Wilf', 1961);
 
 INSERT INTO teams (team_name, titles, mascot, location, venue, general_mgr, head_coach, division, conference, ownership, year_founded)
 VALUES ('New England Patriots', 6, 'Pat Patriot', 'Foxborough, MA', 'Gillette Stadium', 'Bill Belichick', 'Bill Belichick', 'East', 'AFC', 'Robert Kraft', 1960);
@@ -80,7 +80,7 @@ INSERT INTO teams (team_name, titles, mascot, location, venue, general_mgr, head
 VALUES ('Pittsburgh Steelers', 6, 'Steely McBeam', 'Pittsburgh, PA', 'Acrisure Stadium', 'Omar Khan', 'Mike Tomlin', 'North', 'AFC', 'Art Rooney II', 1933);
 
 INSERT INTO teams (team_name, titles, mascot, location, venue, general_mgr, head_coach, division, conference, ownership, year_founded)
-VALUES ('San Francisco 49ers', 5, 'Sourdough Sam', 'Santa Clara, CA', 'Levi\'s Stadium', 'John Lynch', 'Kyle Shanahan', 'West', 'NFC', 'Jed York', 1946);
+VALUES ('San Francisco 49ers', 5, 'Sourdough Sam', 'Santa Clara, CA', 'Levi''s Stadium', 'John Lynch', 'Kyle Shanahan', 'West', 'NFC', 'Jed York', 1946);
 
 INSERT INTO teams (team_name, titles, mascot, location, venue, general_mgr, head_coach, division, conference, ownership, year_founded)
 VALUES ('Seattle Seahawks', 1, 'Blitz', 'Seattle, WA', 'Lumen Field', 'John Schneider', 'Pete Carroll', 'West', 'NFC', 'Paul Allen Trust', 1976);
