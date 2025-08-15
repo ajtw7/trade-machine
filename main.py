@@ -34,28 +34,28 @@ def create_team(team: Team):
     conn.close()
     return {"message": "Team created successfully"}
 
-# @app.put("/teams/{team_id}")
-# def update_team(team_id: int, team: Team):
-#     """Update an existing team."""
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-#     cursor.execute(
-#         "UPDATE teams SET team_name = ?, titles = ?, mascot = ?, location = ?, venue = ?, general_mgr = ?, head_coach = ?, division = ?, conference = ?, ownership = ?, year_founded = ? WHERE team_id = ?",
-#         (team.team_name, team.titles, team.mascot, team.location, team.venue, team.general_mgr, team.head_coach, team.division, team.conference, team.ownership, team.year_founded, team_id),
-#     )
-#     conn.commit()
-#     conn.close()
-#     return {"message": "Team updated successfully"}
+@app.put("/teams/{team_id}")
+def update_team(team_id: int, team: Team):
+    """Update an existing team."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE teams SET team_name = ?, titles = ?, mascot = ?, location = ?, venue = ?, general_mgr = ?, head_coach = ?, division = ?, conference = ?, ownership = ?, year_founded = ? WHERE team_id = ?",
+        (team.team_name, team.titles, team.mascot, team.location, team.venue, team.general_mgr, team.head_coach, team.division, team.conference, team.ownership, team.year_founded, team_id),
+    )
+    conn.commit()
+    conn.close()
+    return {"message": "Team updated successfully"}
 
-# @app.delete("/teams/{team_id}")
-# def delete_team(team_id: int):
-#     """Delete a team by its ID."""
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-#     cursor.execute("DELETE FROM teams WHERE team_id = ?", (team_id,))
-#     conn.commit()
-#     conn.close()
-#     return {"message": "Team deleted successfully"}
+@app.delete("/teams/{team_id}")
+def delete_team(team_id: int):
+    """Delete a team by its ID."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM teams WHERE team_id = ?", (team_id,))
+    conn.commit()
+    conn.close()
+    return {"message": "Team deleted successfully"}
 
 # # Detail Table: Players
 
