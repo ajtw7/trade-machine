@@ -94,7 +94,7 @@ VALUES
 
 (24, 'John', 'Unitas', '1933-05-07', 'American', 'Quarterback', '6-1', 190, 19, 1956, 2025, 25000000, 'Louisville', 1956, 69),
 (24, 'Jim', 'Brown', '1936-02-17', 'American', 'Running Back', '6-2', 232, 32, 1957, 2025, 18000000, 'Syracuse', 1957, 68),
-(24, 'Don', 'Shula', '1930-01-04', 'American', 'Coach', NULL, NULL, NULL, 1963, 2025, 20000000, NULL, NULL, NULL),
+(24, 'Don', 'Shula', '1930-01-04', 'American', 'Coach', 'N/A', 0, 0, 1963, 2025, 20000000, 'N/A', 0, 0),
 
 (25, 'Joe', 'Montana', '1956-06-11', 'American', 'Quarterback', '6-2', 211, 16, 1979, 2025, 30000000, 'Notre Dame', 1979, 46),
 (25, 'Barry', 'Sanders', '1968-07-16', 'American', 'Running Back', '5-8', 203, 20, 1989, 2025, 22000000, 'Oklahoma State', 1989, 36),
@@ -118,7 +118,7 @@ VALUES
 
 (30, 'John', 'Unitas', '1933-05-07', 'American', 'Quarterback', '6-1', 190, 19, 1956, 2025, 25000000, 'Louisville', 1956, 69),
 (30, 'Jim', 'Brown', '1936-02-17', 'American', 'Running Back', '6-2', 232, 32, 1957, 2025, 18000000, 'Syracuse', 1957, 68),
-(30, 'Don', 'Shula', '1930-01-04', 'American', 'Coach', NULL, NULL, NULL, 1963, 2025, 20000000, NULL, NULL, NULL),
+(30, 'Don', 'Shula', '1930-01-04', 'American', 'Coach', 'N/A', 0, 0, 1963, 2025, 20000000, 'N/A', 0, 0),
 
 (31, 'Drew', 'Brees', '1979-01-15', 'American', 'Quarterback', '6-0', 209, 9, 2001, 2025, 25000000, 'Purdue', 2001, 24),
 (31, 'Alvin', 'Kamara', '1995-07-25', 'American', 'Running Back', '6-0', 215, 41, 2017, 2025, 15000000, 'Tennessee', 2017, 8),
