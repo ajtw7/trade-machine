@@ -27,5 +27,20 @@ def fetch_team_by_id(team_id):
     db_conn.close()
     return single_team
 
+def fetch_all_players():
+    """Fetch and return all players from the database."""
+    db_conn = get_db_connection()
+    cursor = db_conn.cursor()
+    cursor.execute("SELECT * FROM players")
+    all_players = cursor.fetchall()
+    db_conn.close()
+    return all_players
 
-
+def fetch_player_by_id(player_id):
+    """Fetch and return a player by its ID from the database."""
+    db_conn = get_db_connection()
+    cursor = db_conn.cursor()
+    cursor.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
+    single_player = cursor.fetchone()
+    db_conn.close()
+    return single_player
