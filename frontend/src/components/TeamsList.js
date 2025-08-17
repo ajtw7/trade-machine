@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchTeams } from '../api/teams_api';
 
+
 const TeamsList = () => {
   const [teams, setTeams] = useState([]);
 
@@ -18,7 +19,7 @@ const TeamsList = () => {
   }, []);
 
   return (
-    <div>
+    <div className="panelContent">
       <h1>Teams</h1>
       <ul>
         {teams.map((team) => (
