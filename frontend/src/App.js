@@ -1,10 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TeamsList from './components/TeamsList';
 import PlayersList from './components/PlayersList';
-import { Box, Card, CardHeader, CardContent, Tabs, Tab, Typography } from '@mui/material';
+import TradeBuilder from './components/TradeBuilder';
+import { apiClient } from './lib/api-client';
+import { Box, Card, CardHeader, CardContent, Tabs, Tab, Typography, CircularProgress } from '@mui/material';
 
 function App() {
   const [tab, setTab] = useState(0);
+  const [teams, setTeams] = useState([]);
+  const [players, setPlayers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [teamsData, playersData] = await Promise.all([
+          apiClient.getTeams(),
+          apiClient.getPlayers(),
+        ]);
+        setTeams(teamsData || []);
+        setPlayers(playersData || []);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box minHeight="100vh" display="flex" alignItems="center" justifyContent="center">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box minHeight="100vh" bgcolor="background.default" p={4}>
@@ -27,12 +56,12 @@ function App() {
           >
             <Tab label="Teams" />
             <Tab label="Players" />
-            {/* Add more tabs as needed */}
+            <Tab label="Trade Builder" />
           </Tabs>
           <CardContent>
-            {tab === 0 && <TeamsList />}
-            {tab === 1 && <PlayersList />}
-            {/* Add more tab panels as needed */}
+            {tab === 0 && <TeamsList teams={teams} />}
+            {tab === 1 && <PlayersList players={players} />}
+            {tab === 2 && <TradeBuilder teams={teams} players={players} />}
           </CardContent>
         </Card>
       </Box>
