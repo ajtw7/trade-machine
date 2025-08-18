@@ -1,47 +1,135 @@
-import { useEffect, useState } from 'react';
-import { fetchPlayers } from '../api/players_api';
+import React, { useEffect, useState } from 'react';
+import { apiClient } from '../lib/api-client';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  Stack,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const PlayersList = () => {
+export default function PlayersList() {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [confirmingId, setConfirmingId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
+  const load = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await apiClient.getPlayers();
+      setPlayers(data || []);
+    } catch (e) {
+      setError(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const loadPlayers = async () => {
-      try {
-        const data = await fetchPlayers();
-        if (mounted) setPlayers(data);
-      } catch (err) {
-        if (mounted) setError(err);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
+  useEffect(() => { load(); }, []);
 
-    loadPlayers();
+  const handleStartConfirm = (id) => setConfirmingId(id);
+  const handleCancelConfirm = () => setConfirmingId(null);
 
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const handleConfirmDelete = async (id) => {
+    setDeleting(true);
+    try {
+      await apiClient.deletePlayer(id);
+      await load();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDeleting(false);
+      setConfirmingId(null);
+    }
+  };
 
-  if (loading) return <div>Loading players...</div>;
-  if (error) return <div>Error loading players.</div>;
+  if (loading) {
+    return (
+      <Box className="panelContent" display="flex" justifyContent="center" alignItems="center" minHeight={200}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+  if (error) {
+    return (
+      <Box className="panelContent" p={2}>
+        <Typography color="error">Error loading players.</Typography>
+      </Box>
+    );
+  }
 
   return (
-    <div className="panelContent">
-      <h2>Players</h2>
-      <ul>
+    <Box className="panelContent" p={2}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h5">Players</Typography>
+        <Button variant="contained" onClick={() => {/* open add modal (implement later) */}}>
+          Add
+        </Button>
+      </Box>
+      <List>
         {players.map((p) => (
-          <li key={p.player_id}>
-            {p.first_name} {p.last_name} — {p.position} — #{p.jersey_number}
-          </li>
+          <ListItem
+            key={p.player_id}
+            divider
+            secondaryAction={
+              <Stack direction="row" spacing={1}>
+                <IconButton
+                  edge="end"
+                  aria-label="edit"
+                  onClick={() => {/* open edit modal */}}
+                  size="small"
+                >
+                  <EditIcon />
+                </IconButton>
+                {confirmingId === p.player_id ? (
+                  <>
+                    <Button
+                      color="error"
+                      size="small"
+                      onClick={() => handleConfirmDelete(p.player_id)}
+                      disabled={deleting}
+                      variant="outlined"
+                    >
+                      {deleting ? 'Deleting...' : 'Yes'}
+                    </Button>
+                    <Button
+                      size="small"
+                      onClick={handleCancelConfirm}
+                      disabled={deleting}
+                      variant="outlined"
+                    >
+                      No
+                    </Button>
+                  </>
+                ) : (
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    color="error"
+                    onClick={() => handleStartConfirm(p.player_id)}
+                    size="small"
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
+              </Stack>
+            }
+          >
+            <ListItemText
+              primary={`${p.first_name} ${p.last_name} — ${p.position} — #${p.jersey_number}`}
+            />
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Box>
   );
-};
-
-export default PlayersList;
+}
