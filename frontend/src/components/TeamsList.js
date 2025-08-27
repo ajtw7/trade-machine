@@ -21,15 +21,17 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 // Adjust these fields to match your Team model
 const TEAM_FIELDS = [
-  { name: 'city', label: 'City', required: true },
   { name: 'team_name', label: 'Team Name', required: true },
-  { name: 'abbreviation', label: 'Abbreviation', required: true },
-  { name: 'conference', label: 'Conference', required: true },
+  { name: 'titles', label: 'Titles', required: true },
+  { name: 'mascot', label: 'Mascot', required: true },
+  { name: 'location', label: 'Location', required: true },
+  { name: 'venue', label: 'Venue', required: true },
+  { name: 'general_mgr', label: 'General Manager', required: true },
+  { name: 'head_coach', label: 'Head Coach', required: true },
   { name: 'division', label: 'Division', required: true },
-  { name: 'founded', label: 'Founded Year', required: false },
-  { name: 'arena', label: 'Arena', required: false },
-  { name: 'owner', label: 'Owner', required: false },
-  { name: 'head_coach', label: 'Head Coach', required: false },
+  { name: 'conference', label: 'Conference', required: true },
+  { name: 'ownership', label: 'Ownership', required: true },
+  { name: 'year_founded', label: 'Year Founded', required: false },
 ];
 
 export default function TeamsList({ teams: teamsProp }) {
@@ -210,7 +212,7 @@ export default function TeamsList({ teams: teamsProp }) {
                 key={field.name}
                 margin="dense"
                 label={
-                  field.label + (field.required ? ' *' : '')
+                  field.label
                 }
                 name={field.name}
                 value={addForm[field.name]}
