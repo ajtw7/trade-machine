@@ -87,6 +87,17 @@ def get_player_by_id(player_id: int):
         raise HTTPException(status_code=404, detail="Player not found")
     return dict(player)
 
+
+@app.get("/teams/{team_id}/players")
+def get_players_for_team(team_id: int):
+    """Fetch all players for a specific team."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM players WHERE team_id = ?", (team_id,))
+    players = cursor.fetchall()
+    conn.close()
+    return [dict(player) for player in players]
+
 @app.post("/players" , response_model=Player)
 def create_player(player: Player_Create):
     """Create a new player."""

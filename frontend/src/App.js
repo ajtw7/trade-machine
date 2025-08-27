@@ -60,7 +60,7 @@ function App() {
           </Tabs>
           <CardContent>
             {tab === 0 && <TeamsList teams={teams} />}
-            {tab === 1 && <PlayersList players={players} />}
+            {tab === 1 && <PlayersList players={players} teams={teams} />}
             {tab === 2 && <TradeBuilder teams={teams} players={players} />}
           </CardContent>
         </Card>
