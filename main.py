@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from models import Player, Player_Create, Player_Update, Team, Team_Create, Team_Update
 from db.db import fetch_all_teams, fetch_team_by_id, get_db_connection, fetch_all_players
-import sqlite3
 
 app = FastAPI()
 
@@ -167,8 +166,11 @@ def create_team(team: Team_Create):
         (team.team_name, team.titles, team.mascot, team.location, team.venue, team.general_mgr, team.head_coach, team.division, team.conference, team.ownership, team.year_founded),
     )
     conn.commit()
+    team_id = cursor.lastrowid
+    cursor.execute("SELECT * FROM teams WHERE team_id = ?", (team_id,))
+    team = cursor.fetchone()
     conn.close()
-    return {"message": "Team created successfully"}
+    return dict(team) if team else None
 
 
 @app.post("/players" , response_model=Player)
