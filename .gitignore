@@ -6,3 +6,7 @@ venv/
 
 # pycache files
 __pycache__/
+
+
+# sql database 
+trade_machine.db

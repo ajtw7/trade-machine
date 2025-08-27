@@ -30,6 +30,6 @@ CREATE TABLE IF NOT EXISTS players (
     college TEXT NOT NULL,
     draft_year INTEGER NOT NULL,
     experience INTEGER NOT NULL,
-    FOREIGN KEY (team_id) REFERENCES teams(team_id),
+    FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE,
     UNIQUE(team_id, first_name, last_name) -- Prevent duplicate players on the same team
 );
