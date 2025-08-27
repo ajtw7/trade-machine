@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from models import Player, Player_Create, Player_Update, Team, Team_Create, Team_Update
-from db.db import fetch_all_teams, fetch_team_by_id, get_db_connection, fetch_all_players, fetch_player_by_id
+from db.db import fetch_all_teams, fetch_team_by_id, get_db_connection, fetch_all_players
 import sqlite3
 
 app = FastAPI()

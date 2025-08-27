@@ -8,5 +8,3 @@ venv/
 __pycache__/
 
 
-# sql database 
-trade_machine.db
