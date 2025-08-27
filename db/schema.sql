@@ -1,8 +1,6 @@
-
-
 CREATE TABLE IF NOT EXISTS teams (
     team_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    team_name TEXT NOT NULL,
+    team_name TEXT NOT NULL UNIQUE, -- Enforce unique team names
     titles INTEGER NOT NULL,
     mascot TEXT NOT NULL,
     location TEXT NOT NULL,
@@ -32,5 +30,6 @@ CREATE TABLE IF NOT EXISTS players (
     college TEXT NOT NULL,
     draft_year INTEGER NOT NULL,
     experience INTEGER NOT NULL,
-    FOREIGN KEY (team_id) REFERENCES teams(team_id)
+    FOREIGN KEY (team_id) REFERENCES teams(team_id),
+    UNIQUE(team_id, first_name, last_name) -- Prevent duplicate players on the same team
 );
