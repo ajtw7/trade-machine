@@ -84,6 +84,17 @@ def get_player_team(player_id: int):
         raise HTTPException(status_code=404, detail="Team not found")
     return dict(team)
 
+# Get all players by position
+@app.get("/players/position/{position}")
+def get_players_by_position(position:str):
+    """Fetch all players by position."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM players WHERE position = ?", (position,))
+    players = cursor.fetchall()
+    conn.close()
+    return [dict(player) for player in players]
+
 
 
 # ==============================================================================

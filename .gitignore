@@ -3,3 +3,6 @@ venv/
 
 # VS Code settings
 .vscode/
+
+# pycache files
+__pycache__/
