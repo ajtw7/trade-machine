@@ -95,6 +95,31 @@ def get_players_by_position(position:str):
     conn.close()
     return [dict(player) for player in players]
 
+# Get all team by conference
+@app.get("/teams/conference/{conference}", response_model=list[Team])
+def get_teams_by_conference(conference:str):
+    """Fetch all teams by conference."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM teams WHERE TRIM(LOWER(conference)) = TRIM(LOWER(?))", (conference,))
+    teams = cursor.fetchall()
+    conn.close()
+    return [dict(team) for team in teams]
+
+# Get all teams by division
+@app.get("/teams/conference/{conference}/division/{division}", response_model=list[Team])
+def get_teams_by_conference_and_division(conference: str, division: str):
+    """Fetch all teams by conference and division."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT * FROM teams WHERE TRIM(LOWER(conference)) = TRIM(LOWER(?)) AND TRIM(LOWER(division)) = TRIM(LOWER(?))",
+        (conference, division)
+    )
+    teams = cursor.fetchall()
+    conn.close()
+    return [dict(team) for team in teams]
+
 
 
 # ==============================================================================
