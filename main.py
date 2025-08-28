@@ -133,8 +133,10 @@ def update_team(team_id: int, team: Team_Update):
         (team.team_name, team.titles, team.mascot, team.location, team.venue, team.general_mgr, team.head_coach, team.division, team.conference, team.ownership, team.year_founded, team_id),
     )
     conn.commit()
+    cursor.execute("SELECT * FROM teams WHERE team_id = ?", (team_id,))
+    updated_team = cursor.fetchone()
     conn.close()
-    return {"message": "Team updated successfully"}
+    return dict(updated_team) if updated_team else None
 
 
 @app.put("/players/{player_id}" , response_model=Player)
