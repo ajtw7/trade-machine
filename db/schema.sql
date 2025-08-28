@@ -33,3 +33,26 @@ CREATE TABLE IF NOT EXISTS players (
     FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE,
     UNIQUE(team_id, first_name, last_name) -- Prevent duplicate players on the same team
 );
+
+
+-- Table to record each trade event -- 
+CREATE TABLE IF NOT EXISTS trades (
+    trade_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'completed', 'cancelled')),
+    notes TEXT
+);
+
+-- Table to record each item (player movement) in a trade, supporting multi-team/multi-player trades
+CREATE TABLE IF NOT EXISTS trade_items (
+    trade_item_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    trade_id INTEGER NOT NULL,
+    from_team_id INTEGER NOT NULL,
+    to_team_id INTEGER NOT NULL,
+    player_id INTEGER NOT NULL,
+    salary INTEGER NOT NULL, -- snapshot of player's salary at trade time
+    FOREIGN KEY (trade_id) REFERENCES trades(trade_id),
+    FOREIGN KEY (from_team_id) REFERENCES teams(team_id),
+    FOREIGN KEY (to_team_id) REFERENCES teams(team_id),
+    FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
