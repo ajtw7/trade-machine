@@ -1,23 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { apiClient } from '../lib/api-client';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import {
   Box,
   Button,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
   List,
   ListItem,
   ListItemText,
-  Typography,
   Stack,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
+  Typography,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import { useEffect, useState } from 'react';
+import { apiClient } from '../lib/api-client';
 
 // Adjust these fields to match your Team model
 const TEAM_FIELDS = [
@@ -49,6 +51,18 @@ export default function TeamsList({ teams: teamsProp }) {
   const [addSubmitting, setAddSubmitting] = useState(false);
   const [addError, setAddError] = useState('');
 
+  // Edit Team Modal State
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState(
+    TEAM_FIELDS.reduce((acc, field) => ({ ...acc, [field.name]: '' }), {})
+  );
+  const [editId, setEditId] = useState(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editError, setEditError] = useState('');
+
+  // Snackbar State
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
   const load = async () => {
     setLoading(true);
     setError(null);
@@ -74,7 +88,9 @@ export default function TeamsList({ teams: teamsProp }) {
     try {
       await apiClient.deleteTeam(id);
       await load();
+      showSnackbar('Team deleted successfully!', 'success');
     } catch (e) {
+      showSnackbar('Failed to delete team.', 'error');
       console.error(e);
     } finally {
       setDeleting(false);
@@ -100,7 +116,7 @@ export default function TeamsList({ teams: teamsProp }) {
     setAddError('');
     // Validate required fields
     for (const field of TEAM_FIELDS) {
-      if (field.required && !addForm[field.name].trim()) {
+      if (field.required && !String(addForm[field.name]).trim()) {
         setAddError(`"${field.label}" is required.`);
         setAddSubmitting(false);
         return;
@@ -109,20 +125,76 @@ export default function TeamsList({ teams: teamsProp }) {
     try {
       await apiClient.createTeam({
         ...addForm,
-        // Optionally, convert fields like founded to number if needed:
-        founded: addForm.founded ? Number(addForm.founded) : undefined,
+        titles: addForm.titles ? Number(addForm.titles) : 0,
+        year_founded: addForm.year_founded ? Number(addForm.year_founded) : 0,
       });
       setAddOpen(false);
       await load();
+      showSnackbar('Team created successfully!', 'success');
     } catch (err) {
       setAddError(
         err?.response?.data?.message ||
         err?.message ||
         'Failed to add team.'
       );
+      showSnackbar('Failed to add team.', 'error');
     } finally {
       setAddSubmitting(false);
     }
+  };
+
+  // Edit Team Handlers
+  const handleEditOpen = (team) => {
+    setEditForm(team);
+    setEditId(team.team_id); // <-- Set the editId here!
+    setEditError('');
+    setEditOpen(true);
+  };
+  const handleEditClose = () => setEditOpen(false);
+
+  const handleEditChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setEditSubmitting(true);
+    setEditError('');
+    // Validate required fields
+    for (const field of TEAM_FIELDS) {
+      if (field.required && !String(editForm[field.name]).trim()) {
+        setEditError(`"${field.label}" is required.`);
+        setEditSubmitting(false);
+        return;
+      }
+    }
+    try {
+      await apiClient.updateTeam(editId, {
+        ...editForm,
+        titles: editForm.titles ? Number(editForm.titles) : 0,
+        year_founded: editForm.year_founded ? Number(editForm.year_founded) : 0,
+      });
+      setEditOpen(false);
+      await load();
+      showSnackbar('Team updated successfully!', 'success');
+    } catch (err) {
+      setEditError(
+        err?.response?.data?.message ||
+        err?.message ||
+        'Failed to update team.'
+      );
+      showSnackbar('Failed to update team.', 'error');
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   if (loading) {
@@ -158,7 +230,7 @@ export default function TeamsList({ teams: teamsProp }) {
                 <IconButton
                   edge="end"
                   aria-label="edit"
-                  onClick={() => {/* open edit modal */}}
+                  onClick={() => handleEditOpen(t)}
                   size="small"
                 >
                   <EditIcon />
@@ -238,6 +310,54 @@ export default function TeamsList({ teams: teamsProp }) {
           </DialogActions>
         </form>
       </Dialog>
+
+      {/* Edit Team Modal */}
+      <Dialog open={editOpen} onClose={handleEditClose}>
+        <DialogTitle>Edit Team</DialogTitle>
+        <form onSubmit={handleEditSubmit}>
+          <DialogContent sx={{ minWidth: 320 }}>
+            {TEAM_FIELDS.map((field) => (
+              <TextField
+                key={field.name}
+                margin="dense"
+                label={
+                  field.label
+                }
+                name={field.name}
+                value={editForm[field.name]}
+                onChange={handleEditChange}
+                fullWidth
+                required={field.required}
+                type={field.name === 'founded' ? 'number' : 'text'}
+              />
+            ))}
+            {editError && (
+              <Typography color="error" variant="body2" mt={1}>
+                {editError}
+              </Typography>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleEditClose} disabled={editSubmitting}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" disabled={editSubmitting}>
+              {editSubmitting ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <MuiAlert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }} elevation={6} variant="filled">
+          {snackbar.message}
+        </MuiAlert>
+      </Snackbar>
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import TeamsList from './components/TeamsList';
 import PlayersList from './components/PlayersList';
 import TradeBuilder from './components/TradeBuilder';
