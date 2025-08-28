@@ -149,8 +149,10 @@ def update_player(player_id: int, player: Player_Update):
         (player.team_id, player.first_name, player.last_name, player.birth_date, player.nationality, player.position, player.height, player.weight, player.jersey_number, player.contract_start_year, player.contract_end_year, player.salary, player.college, player.draft_year, player.experience, player_id),
     )
     conn.commit()
+    cursor.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
+    updated_player = cursor.fetchone()
     conn.close()
-    return {"message": "Player updated successfully"}
+    return dict(updated_player) if updated_player else None
 
 
 # ==============================================================================
@@ -185,8 +187,11 @@ def create_player(player: Player_Create):
         (player.team_id, player.first_name, player.last_name, player.birth_date, player.nationality, player.position, player.height, player.weight, player.jersey_number, player.contract_start_year, player.contract_end_year, player.salary, player.college, player.draft_year, player.experience),
     )
     conn.commit()
+    player_id = cursor.lastrowid
+    cursor.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
+    new_player = cursor.fetchone()
     conn.close()
-    return {"message": "Player created successfully"}
+    return dict(new_player) if new_player else None
 
 # ==============================================================================
 # DELETE ROUTES BELOW
@@ -208,7 +213,10 @@ def delete_player(player_id: int):
     """Delete a player by their ID."""
     conn = get_db_connection()
     cursor = conn.cursor()
+    # Fetch player before deleting for return
+    cursor.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
+    player = cursor.fetchone()
     cursor.execute("DELETE FROM players WHERE player_id = ?", (player_id,))
     conn.commit()
     conn.close()
-    return {"message": "Player deleted successfully"}
+    return dict(player) if player else None
