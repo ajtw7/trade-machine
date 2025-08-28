@@ -1,7 +1,5 @@
-
 from pydantic import BaseModel, Field
 from typing import Optional
-
 
 class Team(BaseModel):
     team_id: Optional[int] = Field(default=None, description="The unique identifier for the team")
@@ -43,7 +41,6 @@ class Team_Update(BaseModel):
     ownership: Optional[str] = Field(None, description="The ownership of the team")
     year_founded: Optional[int] = Field(None, description="The year the team was founded")
 
-
 class Player(BaseModel):
     player_id: Optional[int] = Field(default=None, description="The unique identifier for the player")
     team_id: int = Field(..., description="The identifier of the team the player belongs to")
@@ -52,8 +49,8 @@ class Player(BaseModel):
     birth_date: str = Field(..., description="The birth date of the player in YYYY-MM-DD format")
     nationality: str = Field(..., description="The nationality of the player")
     position: str = Field(..., description="The position of the player")
-    height: str = Field(..., description="The height of the player")
-    weight: int = Field(..., description="The weight of the player in pounds")
+    height: Optional[str] = Field(None, description="The height of the player")
+    weight: Optional[int] = Field(None, description="The weight of the player in pounds")
     jersey_number: int = Field(..., description="The jersey number of the player")
     contract_start_year: int = Field(..., description="The contract start year of the player")
     contract_end_year: int = Field(..., description="The contract end year of the player")
@@ -67,9 +64,11 @@ class Player_Create(BaseModel):
     first_name: str = Field(..., description="The first name of the player")
     last_name: str = Field(..., description="The last name of the player")
     birth_date: str = Field(..., description="The birth date of the player in YYYY-MM-DD format")
+    nationality: str = Field(..., description="The nationality of the player")
+    position: str = Field(..., description="The position of the player")
+    height: Optional[str] = Field(None, description="The height of the player")
+    weight: Optional[int] = Field(None, description="The weight of the player in pounds")
     jersey_number: int = Field(..., description="The jersey number of the player")
-    height: str = Field(..., description="The height of the player")
-    weight: int = Field(..., description="The weight of the player in pounds")
     contract_start_year: int = Field(..., description="The contract start year of the player")
     contract_end_year: int = Field(..., description="The contract end year of the player")
     salary: int = Field(..., description="The salary of the player")
@@ -82,9 +81,11 @@ class Player_Update(BaseModel):
     first_name: Optional[str] = Field(None, description="The first name of the player")
     last_name: Optional[str] = Field(None, description="The last name of the player")
     birth_date: Optional[str] = Field(None, description="The birth date of the player in YYYY-MM-DD format")
-    jersey_number: Optional[int] = Field(None, description="The jersey number of the player")
+    nationality: Optional[str] = Field(None, description="The nationality of the player")
+    position: Optional[str] = Field(None, description="The position of the player")
     height: Optional[str] = Field(None, description="The height of the player")
     weight: Optional[int] = Field(None, description="The weight of the player in pounds")
+    jersey_number: Optional[int] = Field(None, description="The jersey number of the player")
     contract_start_year: Optional[int] = Field(None, description="The contract start year of the player")
     contract_end_year: Optional[int] = Field(None, description="The contract end year of the player")
     salary: Optional[int] = Field(None, description="The salary of the player")
