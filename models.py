@@ -1,5 +1,6 @@
+from datetime import date as dt_date
+from typing import Optional, List
 from pydantic import BaseModel, Field
-from typing import Optional
 
 class Team(BaseModel):
     team_id: Optional[int] = Field(default=None, description="The unique identifier for the team")
@@ -92,4 +93,36 @@ class Player_Update(BaseModel):
     college: Optional[str] = Field(None, description="The college the player attended")
     draft_year: Optional[int] = Field(None, description="The draft year of the player")
     experience: Optional[int] = Field(None, description="The number of years of experience the player has")
+
+
+class TradeItem(BaseModel):
+    trade_item_id: Optional[int] = Field(default=None, description="The unique identifier for the trade item")
+    trade_id: Optional[int] = Field(default=None, description="The identifier of the trade the item belongs to")
+    from_team_id: int = Field(..., description="The identifier of the team trading away the item")
+    to_team_id: int = Field(..., description="The identifier of the team receiving the item")
+    player_id: int = Field(..., description="The identifier of the player being traded, if applicable")
+    salary: int = Field(..., description="The salary associated with the trade item, if applicable")
+
+class Trade(BaseModel):
+    trade_id: Optional[int] = Field(default=None, description="The unique identifier for the trade")
+    date: dt_date = Field(..., description="The date the trade was made in YYYY-MM-DD format")
+    status: str
+    notes: Optional[str] = None
+    items: Optional[List[TradeItem]] = None
+
+class Trade_Create(BaseModel):
+    date: dt_date
+    status: str
+    notes: Optional[str] = None
+    items: List[TradeItem]
+
+class Trade_Update(BaseModel):
+    date: Optional[dt_date] = None
+    status: Optional[str] = None
+    notes: Optional[str] = None
+    items: Optional[List[TradeItem]] = None
+
+
+
+
 
