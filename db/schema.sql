@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS teams (
     division TEXT NOT NULL,
     conference TEXT NOT NULL,
     ownership TEXT NOT NULL,
-    year_founded INTEGER NOT NULL
+    year_founded INTEGER NOT NULL,
+    salary_cap_remaining INTEGER NOT NULL DEFAULT 100000000
 );
 
 CREATE TABLE IF NOT EXISTS players (
