@@ -181,15 +181,24 @@ def update_player(player_id: int, player: Player_Update):
     """Update an existing player."""
     conn = get_db_connection()
     cursor = conn.cursor()
+    cursor.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
+    existing = cursor.fetchone()
+    if not existing:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Player not found")
     cursor.execute(
         "UPDATE players SET team_id = ?, first_name = ?, last_name = ?, birth_date = ?, nationality = ?, position = ?, height = ?, weight = ?, jersey_number = ?, contract_start_year = ?, contract_end_year = ?, salary = ?, college = ?, draft_year = ?, experience = ? WHERE player_id = ?",
         (player.team_id, player.first_name, player.last_name, player.birth_date, player.nationality, player.position, player.height, player.weight, player.jersey_number, player.contract_start_year, player.contract_end_year, player.salary, player.college, player.draft_year, player.experience, player_id),
     )
     conn.commit()
+    # Update cap for old and new team if team changed
+    update_team_salary_cap(conn, existing["team_id"])
+    if player.team_id and player.team_id != existing["team_id"]:
+        update_team_salary_cap(conn, player.team_id)
     cursor.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
-    updated_player = cursor.fetchone()
+    updated = cursor.fetchone()
     conn.close()
-    return dict(updated_player) if updated_player else None
+    return dict(updated) if updated else None
 
 
 @app.put("/trades/{trade_id}", response_model=Trade)
@@ -239,7 +248,7 @@ def create_team(team: Team_Create):
     return dict(team) if team else None
 
 
-@app.post("/players" , response_model=Player)
+@app.post("/players", response_model=Player)
 def create_player(player: Player_Create):
     """Create a new player."""
     conn = get_db_connection()
@@ -249,6 +258,7 @@ def create_player(player: Player_Create):
         (player.team_id, player.first_name, player.last_name, player.birth_date, player.nationality, player.position, player.height, player.weight, player.jersey_number, player.contract_start_year, player.contract_end_year, player.salary, player.college, player.draft_year, player.experience),
     )
     conn.commit()
+    update_team_salary_cap(conn, player.team_id)
     player_id = cursor.lastrowid
     cursor.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
     new_player = cursor.fetchone()
@@ -347,11 +357,12 @@ def delete_player(player_id: int):
     """Delete a player by their ID."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    # Fetch player before deleting for return
     cursor.execute("SELECT * FROM players WHERE player_id = ?", (player_id,))
     player = cursor.fetchone()
-    cursor.execute("DELETE FROM players WHERE player_id = ?", (player_id,))
-    conn.commit()
+    if player:
+        cursor.execute("DELETE FROM players WHERE player_id = ?", (player_id,))
+        conn.commit()
+        update_team_salary_cap(conn, player["team_id"])
     conn.close()
     return dict(player) if player else None
 
@@ -367,5 +378,10 @@ def delete_trade(trade_id: int):
     conn.close()
     return {"message": "Trade deleted successfully"}
 
-
-# Comments for PR
+def update_team_salary_cap(conn, team_id):
+    cursor = conn.cursor()
+    cursor.execute("SELECT COALESCE(SUM(salary), 0) as total_salary FROM players WHERE team_id = ?", (team_id,))
+    total_salary = cursor.fetchone()["total_salary"]
+    salary_cap = 100_000_000 - total_salary
+    cursor.execute("UPDATE teams SET salary_cap_remaining = ? WHERE team_id = ?", (salary_cap, team_id))
+    conn.commit()
