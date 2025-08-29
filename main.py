@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
-from models import Player, Player_Create, Player_Update, Team, Team_Create, Team_Update, Trade_Create, Trade
+from models import Player, Player_Create, Player_Update, Team, Team_Create, Team_Update, Trade, Trade_Create, Trade_Update
 from db.db import fetch_all_teams, fetch_team_by_id, get_db_connection, fetch_all_players
 
 app = FastAPI()
@@ -136,6 +136,24 @@ def get_all_trades():
     conn.close()
     return result
 
+# Fetch a trade and its items by trade ID
+@app.get("/trades/{trade_id}", response_model=Trade)
+def get_trade_by_id(trade_id: int):
+    """Fetch a trade and its items by trade ID."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM trades WHERE trade_id = ?", (trade_id,))
+    trade = cursor.fetchone()
+    if not trade:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Trade not found")
+    cursor.execute("SELECT * FROM trade_items WHERE trade_id = ?", (trade_id,))
+    items = cursor.fetchall()
+    conn.close()
+    trade_dict = dict(trade)
+    trade_dict["items"] = [dict(item) for item in items]
+    return trade_dict
+
 
 
 # ==============================================================================
@@ -173,6 +191,31 @@ def update_player(player_id: int, player: Player_Update):
     conn.close()
     return dict(updated_player) if updated_player else None
 
+
+@app.put("/trades/{trade_id}", response_model=Trade)
+def update_trade(trade_id: int, trade: Trade_Update):
+    """Update a trade's status or notes."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM trades WHERE trade_id = ?", (trade_id,))
+    existing = cursor.fetchone()
+    if not existing:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Trade not found")
+    # Only allow updating status and notes for now
+    cursor.execute(
+        "UPDATE trades SET status = ?, notes = ? WHERE trade_id = ?",
+        (trade.status or existing["status"], trade.notes or existing["notes"], trade_id)
+    )
+    conn.commit()
+    cursor.execute("SELECT * FROM trades WHERE trade_id = ?", (trade_id,))
+    updated = cursor.fetchone()
+    cursor.execute("SELECT * FROM trade_items WHERE trade_id = ?", (trade_id,))
+    items = cursor.fetchall()
+    conn.close()
+    trade_dict = dict(updated)
+    trade_dict["items"] = [dict(item) for item in items]
+    return trade_dict
 
 # ==============================================================================
 # POST ROUTES BELOW
@@ -223,7 +266,7 @@ def create_trade(trade: Trade_Create = Body(...)):
     # 1. Calculate salary changes for each team
     team_salary_changes = {}
     for item in trade.items:
-        # Subtract salary from from_team, add to to_team
+        # Subtract salary from from_team, add to_team
         team_salary_changes.setdefault(item.from_team_id, 0)
         team_salary_changes.setdefault(item.to_team_id, 0)
         team_salary_changes[item.from_team_id] -= item.salary
@@ -311,3 +354,15 @@ def delete_player(player_id: int):
     conn.commit()
     conn.close()
     return dict(player) if player else None
+
+
+@app.delete("/trades/{trade_id}")
+def delete_trade(trade_id: int):
+    """Delete a trade and its items by trade ID."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM trade_items WHERE trade_id = ?", (trade_id,))
+    cursor.execute("DELETE FROM trades WHERE trade_id = ?", (trade_id,))
+    conn.commit()
+    conn.close()
+    return {"message": "Trade deleted successfully"}

@@ -15,6 +15,7 @@ class Team(BaseModel):
     conference: str = Field(..., description="The conference of the team")
     ownership: str = Field(..., description="The ownership of the team")
     year_founded: int = Field(..., description="The year the team was founded")
+    salary_cap_remaining: int = Field(..., description="The team's remaining salary cap")
 
 class Team_Create(BaseModel):
     team_name: str = Field(..., description="The name of the team")
@@ -28,6 +29,8 @@ class Team_Create(BaseModel):
     conference: str = Field(..., description="The conference of the team")
     ownership: str = Field(..., description="The ownership of the team")
     year_founded: int = Field(..., description="The year the team was founded")
+    # Optionally allow setting cap on creation, or just default in DB/backend
+    # salary_cap_remaining: Optional[int] = 100_000_000
 
 class Team_Update(BaseModel):
     team_name: Optional[str] = Field(None, description="The name of the team")
@@ -41,6 +44,7 @@ class Team_Update(BaseModel):
     conference: Optional[str] = Field(None, description="The conference of the team")
     ownership: Optional[str] = Field(None, description="The ownership of the team")
     year_founded: Optional[int] = Field(None, description="The year the team was founded")
+    salary_cap_remaining: Optional[int] = Field(None, description="The team's remaining salary cap")
 
 class Player(BaseModel):
     player_id: Optional[int] = Field(default=None, description="The unique identifier for the player")
