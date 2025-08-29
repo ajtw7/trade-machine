@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from typing import List
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
-from models import Player, Player_Create, Player_Update, Team, Team_Create, Team_Update
+from models import Player, Player_Create, Player_Update, Team, Team_Create, Team_Update, Trade_Create, Trade
 from db.db import fetch_all_teams, fetch_team_by_id, get_db_connection, fetch_all_players
 
 app = FastAPI()
@@ -118,6 +119,24 @@ def get_teams_by_conference_and_division(conference: str, division: str):
     return [dict(team) for team in teams]
 
 
+@app.get("/trades", response_model=List[Trade])
+def get_all_trades():
+    """Fetch all trades with their associated trade items."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM trades")
+    trades = cursor.fetchall()
+    result = []
+    for trade in trades:
+        cursor.execute("SELECT * FROM trade_items WHERE trade_id = ?", (trade["trade_id"],))
+        items = cursor.fetchall()
+        trade_dict = dict(trade)
+        trade_dict["items"] = [dict(item) for item in items]
+        result.append(trade_dict)
+    conn.close()
+    return result
+
+
 
 # ==============================================================================
 # PUT ROUTES BELOW
@@ -192,6 +211,40 @@ def create_player(player: Player_Create):
     new_player = cursor.fetchone()
     conn.close()
     return dict(new_player) if new_player else None
+
+@app.post("/trades", response_model=Trade)
+def create_trade(trade: Trade_Create = Body(...)):
+    """Create a new trade with associated trade items."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO trades (date, status, notes) VALUES (?, ?, ?)",
+        (trade.date.isoformat(), trade.status, getattr(trade, "notes", None))
+    )
+    trade_id = cursor.lastrowid
+    items = []
+    for item in (trade.items or []):
+        cursor.execute(
+            "INSERT INTO trade_items (trade_id, from_team_id, to_team_id, player_id, salary) VALUES (?, ?, ?, ?, ?)",
+            (trade_id, item.from_team_id, item.to_team_id, item.player_id, item.salary)
+        )
+        items.append({
+            "trade_item_id": cursor.lastrowid,
+            "trade_id": trade_id,
+            "from_team_id": item.from_team_id,
+            "to_team_id": item.to_team_id,
+            "player_id": item.player_id,
+            "salary": item.salary
+        })
+    conn.commit()
+    conn.close()
+    return {
+        "trade_id": trade_id,
+        "date": trade.date,
+        "status": trade.status,
+        "notes": getattr(trade, "notes", None),
+        "items": items
+    }
 
 # ==============================================================================
 # DELETE ROUTES BELOW
