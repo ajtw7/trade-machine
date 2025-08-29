@@ -185,8 +185,8 @@ def create_team(team: Team_Create):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO teams (team_name, titles, mascot, location, venue, general_mgr, head_coach, division, conference, ownership, year_founded) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (team.team_name, team.titles, team.mascot, team.location, team.venue, team.general_mgr, team.head_coach, team.division, team.conference, team.ownership, team.year_founded),
+        "INSERT INTO teams (team_name, titles, mascot, location, venue, general_mgr, head_coach, division, conference, ownership, year_founded, salary_cap_remaining) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (team.team_name, team.titles, team.mascot, team.location, team.venue, team.general_mgr, team.head_coach, team.division, team.conference, team.ownership, team.year_founded, 100_000_000), 
     )
     conn.commit()
     team_id = cursor.lastrowid
@@ -212,11 +212,36 @@ def create_player(player: Player_Create):
     conn.close()
     return dict(new_player) if new_player else None
 
+
+# TRADE ROUTES BELOW
 @app.post("/trades", response_model=Trade)
 def create_trade(trade: Trade_Create = Body(...)):
-    """Create a new trade with associated trade items."""
+    """Create a new trade with associated trade items, enforce salary cap, and update teams/players."""
     conn = get_db_connection()
     cursor = conn.cursor()
+
+    # 1. Calculate salary changes for each team
+    team_salary_changes = {}
+    for item in trade.items:
+        # Subtract salary from from_team, add to to_team
+        team_salary_changes.setdefault(item.from_team_id, 0)
+        team_salary_changes.setdefault(item.to_team_id, 0)
+        team_salary_changes[item.from_team_id] -= item.salary
+        team_salary_changes[item.to_team_id] += item.salary
+
+    # 2. Check salary cap for all teams involved
+    for team_id, change in team_salary_changes.items():
+        cursor.execute("SELECT salary_cap_remaining FROM teams WHERE team_id = ?", (team_id,))
+        row = cursor.fetchone()
+        if row is None:
+            conn.close()
+            raise HTTPException(status_code=400, detail=f"Team {team_id} not found")
+        new_cap = row["salary_cap_remaining"] - change
+        if new_cap < 0 or new_cap > 100_000_000:
+            conn.close()
+            raise HTTPException(status_code=400, detail=f"Trade would exceed salary cap for team {team_id}")
+
+    # 3. Insert trade
     cursor.execute(
         "INSERT INTO trades (date, status, notes) VALUES (?, ?, ?)",
         (trade.date.isoformat(), trade.status, getattr(trade, "notes", None))
@@ -236,6 +261,19 @@ def create_trade(trade: Trade_Create = Body(...)):
             "player_id": item.player_id,
             "salary": item.salary
         })
+        # 4. Update player's team_id
+        cursor.execute(
+            "UPDATE players SET team_id = ? WHERE player_id = ?",
+            (item.to_team_id, item.player_id)
+        )
+
+    # 5. Update salary cap for each team
+    for team_id, change in team_salary_changes.items():
+        cursor.execute(
+            "UPDATE teams SET salary_cap_remaining = salary_cap_remaining - ? WHERE team_id = ?",
+            (change, team_id)
+        )
+
     conn.commit()
     conn.close()
     return {
