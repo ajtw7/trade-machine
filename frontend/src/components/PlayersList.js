@@ -302,7 +302,7 @@ export default function PlayersList({ players: playersProp = [], teams = [] }) {
                   key={field.name}
                   select
                   margin="dense"
-                  label={field.label + (field.required ? ' *' : '')}
+                  label={field.label}
                   name={field.name}
                   value={addForm[field.name]}
                   onChange={handleAddChange}
@@ -319,7 +319,7 @@ export default function PlayersList({ players: playersProp = [], teams = [] }) {
                 <TextField
                   key={field.name}
                   margin="dense"
-                  label={field.label + (field.required ? ' *' : '')}
+                  label={field.label}
                   name={field.name}
                   value={addForm[field.name]}
                   onChange={handleAddChange}
@@ -357,7 +357,7 @@ export default function PlayersList({ players: playersProp = [], teams = [] }) {
                   key={field.name}
                   select
                   margin="dense"
-                  label={field.label + (field.required ? ' *' : '')}
+                  label={field.label}
                   name={field.name}
                   value={editForm[field.name]}
                   onChange={handleEditChange}
@@ -374,7 +374,7 @@ export default function PlayersList({ players: playersProp = [], teams = [] }) {
                 <TextField
                   key={field.name}
                   margin="dense"
-                  label={field.label + (field.required ? ' *' : '')}
+                  label={field.label}
                   name={field.name}
                   value={editForm[field.name]}
                   onChange={handleEditChange}
