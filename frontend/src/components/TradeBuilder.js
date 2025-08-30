@@ -14,6 +14,7 @@ import {
   Paper,
 } from '@mui/material';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import { apiClient } from '../lib/api-client';
 
 export default function TradeBuilder({ teams = [], players = [] }) {
   const [tradeData, setTradeData] = useState({
@@ -76,17 +77,46 @@ export default function TradeBuilder({ teams = [], players = [] }) {
 
     setSubmitting(true);
     try {
-      // Replace with your API call
-      // await apiClient.createTrade({ ... });
-      setSuccess('Trade submitted successfully!');
+      // Build the payload as expected by your backend
+      const payload = {
+        date: new Date().toISOString().slice(0, 10),
+        status: "completed",
+        notes: "",
+        items: [
+          {
+            from_team_id: Number(tradeData.team1_id),
+            to_team_id: Number(tradeData.team2_id),
+            player_id: Number(tradeData.player1_id),
+            salary: Number(
+              players.find(
+                (p) => String(p.player_id ?? p.id) === tradeData.player1_id
+              )?.salary ?? 0
+            ),
+          },
+          {
+            from_team_id: Number(tradeData.team2_id),
+            to_team_id: Number(tradeData.team1_id),
+            player_id: Number(tradeData.player2_id),
+            salary: Number(
+              players.find(
+                (p) => String(p.player_id ?? p.id) === tradeData.player2_id
+              )?.salary ?? 0
+            ),
+          },
+        ],
+      };
+
+      // POST to your backend
+      await apiClient.createTrade(payload);
+      setSuccess("Trade submitted successfully!");
       setTradeData({
-        team1_id: '',
-        team2_id: '',
-        player1_id: '',
-        player2_id: '',
+        team1_id: "",
+        team2_id: "",
+        player1_id: "",
+        player2_id: "",
       });
     } catch (e) {
-      setError('Failed to submit trade');
+      setError(e.message || "Failed to submit trade");
     } finally {
       setSubmitting(false);
     }
